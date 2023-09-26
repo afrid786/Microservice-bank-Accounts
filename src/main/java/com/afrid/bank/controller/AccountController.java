@@ -5,21 +5,25 @@ import com.afrid.bank.constants.AccountsConstants;
 import com.afrid.bank.dto.CustomerDTO;
 import com.afrid.bank.dto.ResponseDTO;
 import com.afrid.bank.service.IAccountsService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "api/v1", produces = {MediaType.APPLICATION_JSON_VALUE})
 @AllArgsConstructor
+@Validated
 public class AccountController {
 
     private IAccountsService iAccountsService;
 
     @PostMapping(path = "/create")
-    public ResponseEntity<ResponseDTO> createAccount (@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<ResponseDTO> createAccount (@Valid @RequestBody CustomerDTO customerDTO) {
 
         iAccountsService.createAccount(customerDTO);
         return ResponseEntity
@@ -28,7 +32,8 @@ public class AccountController {
     }
 
     @GetMapping(path = "/account")
-    public ResponseEntity<CustomerDTO> fetchAccountDetails (@RequestParam String mobileNumber) {
+    public ResponseEntity<CustomerDTO> fetchAccountDetails (@Pattern(regexp = "($|[0-9]{10})",message = "Mobile  number is not valid")
+                                                                @RequestParam String mobileNumber) {
         CustomerDTO customerDTO = iAccountsService.fetchAccountDetails(mobileNumber);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(customerDTO);
@@ -36,7 +41,7 @@ public class AccountController {
     }
 
     @PutMapping("/updateAccount")
-    public ResponseEntity<ResponseDTO> updateAccountDetails (@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<ResponseDTO> updateAccountDetails (@Valid @RequestBody CustomerDTO customerDTO) {
         boolean isAccountUpdated = iAccountsService.updateAccount(customerDTO);
         if(isAccountUpdated) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -48,7 +53,8 @@ public class AccountController {
     }
 
     @DeleteMapping("/deleteAccount")
-    public ResponseEntity<ResponseDTO> deleteAccount (@RequestParam String mobileNumber) {
+    public ResponseEntity<ResponseDTO> deleteAccount (@Pattern(regexp = "($|[0-9]{10})",message = "Mobile  number is not valid")
+                                                          @RequestParam String mobileNumber) {
         boolean isAccountDeleted = iAccountsService.deleteAccount(mobileNumber);
         if(isAccountDeleted) {
             return ResponseEntity.status(HttpStatus.OK)
