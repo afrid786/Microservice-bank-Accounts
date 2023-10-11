@@ -2,6 +2,7 @@ package com.afrid.bank.controller;
 
 
 import com.afrid.bank.constants.AccountsConstants;
+import com.afrid.bank.dto.AccountsContactInfo;
 import com.afrid.bank.dto.CustomerDTO;
 import com.afrid.bank.dto.ResponseDTO;
 import com.afrid.bank.service.IAccountsService;
@@ -11,7 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +25,16 @@ import org.springframework.web.bind.annotation.*;
 )
 @RestController
 @RequestMapping(path = "api/v1", produces = {MediaType.APPLICATION_JSON_VALUE})
-@AllArgsConstructor
 @Validated
 public class AccountController {
 
-    private IAccountsService iAccountsService;
+    @Autowired
+    AccountsContactInfo accountsContactInfo;
+    private final IAccountsService iAccountsService;
+
+    public AccountController(IAccountsService iAccountsService) {
+        this.iAccountsService = iAccountsService;
+    }
 
     @Operation(
             summary = "Create account API",
@@ -109,6 +115,12 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDTO(AccountsConstants.STATUS_500,AccountsConstants.MESSAGE_500));
         }
+    }
+
+    @GetMapping("/build-info")
+    public ResponseEntity<AccountsContactInfo> buildInfo () {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accountsContactInfo);
     }
 
 
